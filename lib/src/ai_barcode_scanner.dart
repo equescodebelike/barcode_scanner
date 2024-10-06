@@ -1,6 +1,11 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:showcase_view/showcase_view.dart';
+import 'package:core_view_utils/core_view_utils.dart';
+import 'package:core_interfaces/core_interfaces.dart';
+import 'package:navigation/navigation.dart';
 
 import 'draggable_sheet.dart';
 import 'error_builder.dart';
@@ -8,7 +13,7 @@ import 'gallery_button.dart';
 import 'overlay.dart';
 
 /// Barcode scanner widget
-class AiBarcodeScanner extends StatefulWidget {
+class AiBarcodeScannerView extends StatefulWidget {
   /// Fit to screen
   final BoxFit fit;
 
@@ -198,7 +203,7 @@ class AiBarcodeScanner extends StatefulWidget {
   /// Camera switch and torch toggle buttons are added by default
   /// You can add more actions to the app bar using this parameter
   final List<Widget>? actions;
-  const AiBarcodeScanner({
+  const AiBarcodeScannerView({
     super.key,
     this.fit = BoxFit.cover,
     this.controller,
@@ -239,20 +244,26 @@ class AiBarcodeScanner extends StatefulWidget {
   });
 
   @override
-  State<AiBarcodeScanner> createState() => _AiBarcodeScannerState();
+  State<AiBarcodeScannerView> createState() => _AiBarcodeScannerViewState();
 }
 
-class _AiBarcodeScannerState extends State<AiBarcodeScanner> {
+class _AiBarcodeScannerViewState extends State<AiBarcodeScannerView> {
   /// bool to check if barcode is valid or not
   final ValueNotifier<bool?> _isSuccess = ValueNotifier<bool?>(null);
 
   /// Scanner controller
   late MobileScannerController controller;
 
+  late IBarcode barcodeManager;
+
+  late StackRouter router;
+
   double _cutOutBottomOffset = 0;
 
   @override
   void initState() {
+    barcodeManager = context.get<IBarcode>();
+    router = context.get();
     controller = widget.controller ?? MobileScannerController();
     _cutOutBottomOffset = widget.cutOutBottomOffset;
     super.initState();
@@ -377,13 +388,28 @@ class _AiBarcodeScannerState extends State<AiBarcodeScanner> {
 
   void onDetect(BarcodeCapture barcodes) {
     widget.onDetect?.call(barcodes);
-    if (widget.validator != null) {
-      final isValid = widget.validator!(barcodes);
-      if (!isValid) {
-        HapticFeedback.heavyImpact();
-      }
-      HapticFeedback.mediumImpact();
-      _isSuccess.value = isValid;
+    print('captured');
+    print('${barcodes.barcodes.first.rawValue}');
+    onBarcodeFound(barcodes);
+    // if (widget.validator != null) {
+    //   final isValid = widget.validator!(barcodes);
+    //   if (!isValid) {
+    //     HapticFeedback.heavyImpact();
+    //   }
+    //   HapticFeedback.mediumImpact();
+    //   _isSuccess.value = isValid;
+    // }
+  }
+
+  Future<void> onBarcodeFound(BarcodeCapture barcode) async {
+    try {
+      final product = await barcodeManager
+          .searchByBarcode(barcode.barcodes.first.displayValue!);
+
+      await router.popAndPush(ProductDetailBundle(productId: product.id));
+    } on ErrorEvent catch (_) {
+      await router.push(
+          BarcodeNotFoundBundle(barcode: barcode.barcodes.first.displayValue!));
     }
   }
 }

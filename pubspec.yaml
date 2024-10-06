@@ -25,6 +25,39 @@ dependencies:
 
   mobile_scanner: ^5.2.3
   image_picker: ^1.1.2
+  auto_route: ^5.0.4
+  showcase_view:
+    git: 
+      url: https://gitlab.com/fittin/fittin-mobile/modul-app-v2/showcase-view.git
+      ref: EVRO-1789
+
+  banners_view:
+    git: 
+      url: https://gitlab.com/fittin/fittin-mobile/modul-app-v2/banner-view.git
+      ref: EVRO-1789
+
+dependency_overrides:
+  js: ^0.7.1
+  navigation:
+    git:
+      url: https://gitlab.com/fittin/fittin-mobile/modul-app-v2/navigation.git
+      ref: dev
+  core_view_utils:
+    git:
+      url: https://gitlab.com/fittin/fittin-mobile/modul-app-v2/core-view-utils.git
+      ref: dev
+  core_models:
+    git:
+      url: https://gitlab.com/fittin/fittin-mobile/modul-app-v2/core-models.git
+      ref: dev
+  core_interfaces:
+    git:
+      url: https://gitlab.com/fittin/fittin-mobile/modul-app-v2/core-interfaces.git
+      ref: dev
+  uikit:
+    git:
+      url: https://gitlab.com/fittin/fittin-mobile/UIKit.git
+      ref: dev
 
 dev_dependencies:
   flutter_test:
